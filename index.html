@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <fieldset>
+        <h2>CSV input:</h2>
+        <textarea name="" id="input" cols="30" rows="10"></textarea>
+        <div>
+            <button id="format">format</button>
+        </div>
+    </fieldset>
+    <br>
+    <fieldset>
+        <h2>JSON output:</h2>
+        <div id="output"></div>
+    </fieldset>
+</body>
+</html>
+<script>
+    const input = document.querySelector('#input')
+    const format = document.querySelector('#format')
+    const output = document.querySelector('#output')
+    format.addEventListener('click', function() {
+        const csv = input.value
+        console.time()
+        const result = formatCsv(csv)
+        console.timeEnd()
+        output.textContent = JSON.stringify(result)
+    }, false)
+    function formatCsv(csv) {
+        const types = [[], [], []]
+        const groups = csv.split('\n').map(v => {
+            const group = v.split(',').filter(v => !!v)
+            if (group.length > 0) {
+                types.forEach((type, index) => {
+                    const targetIndex = index === 2 ? 4 : (index+ 1)
+                    if (type.length === 0) {
+                        type.push(group[targetIndex])
+                        group[targetIndex] = type.length - 1
+                    } else {
+                        const idx = type.indexOf(group[targetIndex])
+                        if (idx === -1) {
+                            type.push(group[targetIndex])
+                            group[targetIndex] = type.length - 1
+                        } else {
+                            group[targetIndex] = idx
+                        }
+                    }
+                })
+            }
+            return group
+        }).filter(v => v.length > 0)
+        return {
+            types,
+            data: groups
+        }
+    }
+</script>
